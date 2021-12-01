@@ -12,8 +12,7 @@ fun main() {
     )
     println(
         input
-            .windowed(3)
-            .map { it.sum() }
+            .windowed(3) { it.sum() }
             .windowed(2)
             .count { (a, b) -> b > a }
     )

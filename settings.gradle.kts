@@ -1,3 +1,3 @@
 
-rootProject.name = "untitled120"
+rootProject.name = "aoc2021"
 
