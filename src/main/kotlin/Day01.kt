@@ -16,4 +16,11 @@ fun main() {
             .windowed(2)
             .count { (a, b) -> b > a }
     )
+    // B + C + D > A + B + C can be simplified: substract (B + C) from both sides:
+    // D > A
+    println(
+        input
+            .windowed(4) { it[3] > it[0]}
+            .count { it }
+    )
 }
