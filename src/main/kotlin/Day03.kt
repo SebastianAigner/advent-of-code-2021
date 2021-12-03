@@ -4,7 +4,7 @@ val input = File("inputs/day03.txt").readLines()
 val bitIndices = input[0].indices
 
 fun List<String>.charactersForColumn(n: Int): Map<Char, Int> = this.groupingBy { it[n] }.eachCount()
-fun String.invertBinaryString() = map { if (it == '0') '1' else '0' }.joinToString("")
+fun String.invertBinaryString() = this.map { if (it == '0') '1' else '0' }.joinToString("")
 
 fun main() {
     part1()
@@ -16,8 +16,10 @@ fun part1() {
         input.charactersForColumn(column)
     }
     val gammaRate = charFrequencyByColumn.joinToString("") { frequencies ->
-        val mostFrequentChar =
-            frequencies.maxByOrNull { it.value }?.key ?: error("Should find maximum in $frequencies!")
+        val mostFrequentChar = frequencies
+            .maxByOrNull { it.value }
+            ?.key
+            ?: error("Should find maximum in $frequencies!")
         mostFrequentChar.toString()
     }
     val epsilonRate = gammaRate.invertBinaryString()
