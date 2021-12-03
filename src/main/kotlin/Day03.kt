@@ -24,18 +24,18 @@ fun part1() {
 }
 
 fun part2() {
-    val oxyGenRating = input.filterColumnsByFrequency { zeroes, ones ->
+    val oxyGenRating = input.filterColumnsForCharacter { zeroes, ones ->
         if (zeroes > ones) '0' else '1'
     }
 
-    val co2ScrubberRating = input.filterColumnsByFrequency { zeroes, ones ->
+    val co2ScrubberRating = input.filterColumnsForCharacter { zeroes, ones ->
         if (zeroes > ones) '1' else '0'
     }
 
     println(oxyGenRating.toInt(2) * co2ScrubberRating.toInt(2))
 }
 
-fun List<String>.filterColumnsByFrequency(predicate: (zeroes: Int, ones: Int) -> Char): String {
+fun List<String>.filterColumnsForCharacter(predicate: (zeroes: Int, ones: Int) -> Char): String {
     var dynInput = this
     for (column in bitIndices) {
         val charFrequencyByColumn = dynInput.charactersForColumn(column)
