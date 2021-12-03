@@ -15,9 +15,10 @@ fun part1() {
     val charFrequencyByColumn = bitIndices.map { column ->
         input.charactersForColumn(column)
     }
-    val gammaRate = charFrequencyByColumn.joinToString("") {
-        val (char, _) = it.maxByOrNull { it.value } ?: error("Should find maximum in $it!")
-        char.toString()
+    val gammaRate = charFrequencyByColumn.joinToString("") { frequencies ->
+        val mostFrequentChar =
+            frequencies.maxByOrNull { it.value }?.key ?: error("Should find maximum in $frequencies!")
+        mostFrequentChar.toString()
     }
     val epsilonRate = gammaRate.invertBinaryString()
     println(gammaRate.toInt(2) * epsilonRate.toInt(2))
