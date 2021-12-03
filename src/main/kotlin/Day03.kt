@@ -1,15 +1,10 @@
 import java.io.File
 
 val input = File("inputs/day03.txt").readLines()
+val bitIndices = input[0].indices
 
-fun List<String>.charactersForColumn(n: Int): Map<Char, Int> {
-    val frequency = mutableMapOf<Char, Int>()
-    for (item in this) {
-        val digit = item[n]
-        frequency[digit] = (frequency[digit] ?: 0) + 1
-    }
-    return frequency
-}
+fun List<String>.charactersForColumn(n: Int): Map<Char, Int> = this.groupingBy { it[n] }.eachCount()
+fun String.invertBinaryString() = map { if (it == '0') '1' else '0' }.joinToString("")
 
 fun main() {
     part1()
@@ -17,14 +12,14 @@ fun main() {
 }
 
 fun part1() {
-    val charFrequencyByColumn = input[0].indices.map { column ->
+    val charFrequencyByColumn = bitIndices.map { column ->
         input.charactersForColumn(column)
     }
     val combined = charFrequencyByColumn.joinToString("") {
         val (char, _) = it.maxByOrNull { it.value } ?: error("Should find max")
         char.toString()
     }
-    val invertedNumber = combined.map { if (it == '0') '1' else '0' }.joinToString("")
+    val invertedNumber = combined.invertBinaryString()
     println(combined.toInt(2) * invertedNumber.toInt(2))
 }
 
@@ -54,7 +49,7 @@ fun part2() {
 
 fun List<String>.foo(filter: (list: List<String>, column: Int, zeroes: Int, ones: Int) -> List<String>): String {
     var dynInput = this
-    for (column in this[0].indices) {
+    for (column in bitIndices) {
         val charFrequencyByColumn = dynInput.charactersForColumn(column)
         val zeroes = charFrequencyByColumn['0'] ?: 0
         val ones = charFrequencyByColumn['1'] ?: 0
