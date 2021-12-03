@@ -15,12 +15,12 @@ fun part1() {
     val charFrequencyByColumn = bitIndices.map { column ->
         input.charactersForColumn(column)
     }
-    val combined = charFrequencyByColumn.joinToString("") {
-        val (char, _) = it.maxByOrNull { it.value } ?: error("Should find max")
+    val gammaRate = charFrequencyByColumn.joinToString("") {
+        val (char, _) = it.maxByOrNull { it.value } ?: error("Should find maximum in $it!")
         char.toString()
     }
-    val invertedNumber = combined.invertBinaryString()
-    println(combined.toInt(2) * invertedNumber.toInt(2))
+    val epsilonRate = gammaRate.invertBinaryString()
+    println(gammaRate.toInt(2) * epsilonRate.toInt(2))
 }
 
 fun part2() {
@@ -35,14 +35,14 @@ fun part2() {
     println(oxyGenRating.toInt(2) * co2ScrubberRating.toInt(2))
 }
 
-fun List<String>.filterColumnsForCharacter(predicate: (zeroes: Int, ones: Int) -> Char): String {
-    var dynInput = this
+fun List<String>.filterColumnsForCharacter(desiredCharacterByFrequency: (zeroes: Int, ones: Int) -> Char): String {
+    var candidateList = this
     for (column in bitIndices) {
-        val charFrequencyByColumn = dynInput.charactersForColumn(column)
+        val charFrequencyByColumn = candidateList.charactersForColumn(column)
         val zeroes = charFrequencyByColumn['0'] ?: 0
         val ones = charFrequencyByColumn['1'] ?: 0
-        dynInput = dynInput.filter { it[column] == predicate(zeroes, ones) }
-        if (dynInput.size == 1) break
+        candidateList = candidateList.filter { it[column] == desiredCharacterByFrequency(zeroes, ones) }
+        if (candidateList.size == 1) break
     }
-    return dynInput.joinToString("")
+    return candidateList.single()
 }
