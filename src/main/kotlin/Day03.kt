@@ -24,36 +24,24 @@ fun part1() {
 }
 
 fun part2() {
-    val oxyGenRating = input.foo { list, column, zeroes, ones ->
-        val popular =
-            when {
-                zeroes > ones -> '0'
-                zeroes == ones -> '1'
-                else -> '1'
-            }
-        list.filter { it[column] == popular }
+    val oxyGenRating = input.filterColumnsByFrequency { zeroes, ones ->
+        if (zeroes > ones) '0' else '1'
     }
 
-    val co2ScrubberRating = input.foo { list, column, zeroes, ones ->
-        val popular =
-            when {
-                zeroes > ones -> '1'
-                zeroes == ones -> '0'
-                else -> '0'
-            }
-        list.filter { it[column] == popular }
+    val co2ScrubberRating = input.filterColumnsByFrequency { zeroes, ones ->
+        if (zeroes > ones) '1' else '0'
     }
 
     println(oxyGenRating.toInt(2) * co2ScrubberRating.toInt(2))
 }
 
-fun List<String>.foo(filter: (list: List<String>, column: Int, zeroes: Int, ones: Int) -> List<String>): String {
+fun List<String>.filterColumnsByFrequency(predicate: (zeroes: Int, ones: Int) -> Char): String {
     var dynInput = this
     for (column in bitIndices) {
         val charFrequencyByColumn = dynInput.charactersForColumn(column)
         val zeroes = charFrequencyByColumn['0'] ?: 0
         val ones = charFrequencyByColumn['1'] ?: 0
-        dynInput = filter(dynInput, column, zeroes, ones)
+        dynInput = dynInput.filter { it[column] == predicate(zeroes, ones) }
         if (dynInput.size == 1) break
     }
     return dynInput.joinToString("")
