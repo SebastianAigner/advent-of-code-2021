@@ -13,15 +13,15 @@ val boards = input
         }
     }
 
-fun main() {
-    val cleanedInput = boards.map { board ->
-        board.map { line ->
-            line.split(" ", "  ")
-                .filter { it.isNotBlank() } // Leading whitespace
-                .map { it.toInt() }
-        }
+val cleanedInput = boards.map { board ->
+    board.map { line ->
+        line.split(" ", "  ")
+            .filter { it.isNotBlank() } // Leading whitespace
+            .map { it.toInt() }
     }
+}
 
+fun main() {
     var bingoBoards = cleanedInput.map { BingoBoard.fromCollection(it) }
 
     // Prints all winners in order of appearance.
@@ -57,14 +57,14 @@ data class BingoBoard(val fields: List<MutableList<BingoField>>) {
 
     private fun checkColumn(): Boolean {
         for (column in widthIndices) {
-            var rowOk = true
+            var columnOk = true
             for (row in heightIndices) {
                 if (!fields[row][column].marked) {
-                    rowOk = false
+                    columnOk = false
                     continue
                 }
             }
-            if (rowOk) return true
+            if (columnOk) return true
         }
         return false
     }
