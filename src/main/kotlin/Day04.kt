@@ -15,7 +15,7 @@ val boards = input
 
 val cleanedInput = boards.map { board ->
     board.map { line ->
-        line.split(" ", "  ")
+        line.split("  ", " ")
             .filter { it.isNotBlank() } // Leading whitespace
             .map { it.toInt() }
     }
@@ -33,7 +33,7 @@ fun main() {
             if (board.checkBoard()) {
                 val sumOfUnmarkedFields = board.unmarked().sum()
                 println(sumOfUnmarkedFields * currentDraw)
-                bingoBoards = bingoBoards.filter { it != board } // remove winners
+                bingoBoards = bingoBoards - board
             }
         }
     }
