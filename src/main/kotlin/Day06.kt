@@ -5,8 +5,16 @@ import java.io.File
 val input = File("inputs/day06.txt").readLines()[0].split(",").map { it.toInt() }
 
 fun main() {
-    part1()
-    part2()
+    // Part 1
+    simulateIndividualFishes(80)
+    // Part 1 by generation
+    simulateGenerations(80)
+    // Part 1 by map
+    simulateFishMap(80)
+    // Part 2 by generation
+    simulateGenerations(256)
+    // Part 2 by map
+    simulateFishMap(256)
 }
 
 class Fish(var timer: Int) {
@@ -20,23 +28,42 @@ class Fish(var timer: Int) {
     }
 }
 
-fun part1() {
+fun simulateIndividualFishes(generations: Int) {
     val fishes = input.toList().map { Fish(it) }.toMutableList()
-    repeat(80) {
+    repeat(generations) {
         val newFishes = fishes.mapNotNull { it.step() }
         fishes += newFishes
     }
     println(fishes.count())
 }
 
+fun simulateFishMap(generations: Int) {
+    val occurrences = input.groupingBy { it }.eachCount().map { (k, v) -> k to v.toLong() }.toMap()
+    var curr = occurrences
+    repeat(generations) {
+        curr = tickMap(curr)
+    }
+    println(curr.map { it.value }.sum())
+}
 
-fun part2() {
-    val occurences = input.groupingBy { it }.eachCount()
-    val startSwarm = occurences.map { (num, count) ->
+fun tickMap(fishGens: Map<Int, Long>): Map<Int, Long> {
+    val newMap = fishGens.mapKeys { (key, _) -> key - 1 }.toMutableMap()
+    newMap[8] = newMap.getOrDefault(-1, 0)
+    newMap[6] = newMap.getOrDefault(6, 0) + newMap.getOrDefault(-1, 0)
+    newMap.remove(-1)
+    return newMap
+}
+
+data class FishGeneration(var timer: Int, var number: Long)
+
+
+fun simulateGenerations(generations: Int) {
+    val occurrences = input.groupingBy { it }.eachCount()
+    val startSwarm = occurrences.map { (num, count) ->
         FishGeneration(num, count.toLong())
     }
     var curr = startSwarm
-    repeat(256) {
+    repeat(generations) {
         curr = tickSwarm(curr)
     }
     println(curr.sumOf { it.number })
@@ -62,6 +89,4 @@ fun tickSwarm(fishGens: List<FishGeneration>): List<FishGeneration> {
     }
     return workingCopy.filter { it.timer >= 0 }
 }
-
-data class FishGeneration(var timer: Int, var number: Long)
 
