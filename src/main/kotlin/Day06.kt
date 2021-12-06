@@ -29,7 +29,7 @@ class Fish(var timer: Int) {
 }
 
 fun simulateIndividualFishes(generations: Int) {
-    val fishes = input.toList().map { Fish(it) }.toMutableList()
+    val fishes = input.map { Fish(it) }.toMutableList()
     repeat(generations) {
         val newFishes = fishes.mapNotNull { it.step() }
         fishes += newFishes
@@ -38,12 +38,15 @@ fun simulateIndividualFishes(generations: Int) {
 }
 
 fun simulateFishMap(generations: Int) {
-    val occurrences = input.groupingBy { it }.eachCount().map { (k, v) -> k to v.toLong() }.toMap()
+    val occurrences = input
+        .groupingBy { it }
+        .eachCount()
+        .mapValues { (_, v) -> v.toLong() }
     var curr = occurrences
     repeat(generations) {
         curr = tickMap(curr)
     }
-    println(curr.map { it.value }.sum())
+    println(curr.values.sum())
 }
 
 fun tickMap(fishGens: Map<Int, Long>): Map<Int, Long> {
@@ -58,10 +61,12 @@ data class FishGeneration(var timer: Int, var number: Long)
 
 
 fun simulateGenerations(generations: Int) {
-    val occurrences = input.groupingBy { it }.eachCount()
-    val startSwarm = occurrences.map { (num, count) ->
-        FishGeneration(num, count.toLong())
-    }
+    val startSwarm = input
+        .groupingBy { it }
+        .eachCount()
+        .map { (num, count) ->
+            FishGeneration(num, count.toLong())
+        }
     var curr = startSwarm
     repeat(generations) {
         curr = tickSwarm(curr)
