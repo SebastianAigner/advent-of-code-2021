@@ -3,10 +3,14 @@ package day09
 import java.io.File
 
 val input = File("inputs/day09.txt").readLines()
+val width = input[0].length
 
 data class Point(val x: Int, val y: Int, val height: Int)
 
-fun List<Point>.getAt(x: Int, y: Int) = this.find { it.x == x && it.y == y }
+fun List<Point>.getAt(x: Int, y: Int): Point? {
+    if (x < 0 || x >= width || y < 0) return null
+    return this.getOrNull(y * width + x)
+}
 
 val points = mutableListOf<Point>().apply {
     for ((y, line) in input.withIndex()) {
