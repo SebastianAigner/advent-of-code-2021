@@ -8,7 +8,7 @@ data class Point(val x: Int, val y: Int, val height: Int)
 
 fun List<Point>.getAt(x: Int, y: Int) = this.find { it.x == x && it.y == y }
 
-val list = mutableListOf<Point>().apply {
+val points = mutableListOf<Point>().apply {
     for ((y, line) in input.withIndex()) {
         for ((x, num) in line.withIndex()) {
             this += Point(x, y, num.digitToInt())
@@ -16,19 +16,19 @@ val list = mutableListOf<Point>().apply {
     }
 }
 
+fun Point.getSurrounding(): List<Point> {
+    val above = points.getAt(x, y - 1)
+    val below = points.getAt(x, y + 1)
+    val left = points.getAt(x - 1, y)
+    val right = points.getAt(x + 1, y)
+    return listOfNotNull(above, below, left, right)
+}
+
 fun part1(): List<Point> {
-    println(list)
-    val lowPoints = mutableListOf<Point>()
-    for (point in list) {
-        // above
-        val above = list.getAt(point.x, point.y - 1)
-        val below = list.getAt(point.x, point.y + 1)
-        val left = list.getAt(point.x - 1, point.y)
-        val right = list.getAt(point.x + 1, point.y)
-        val isLowPoint = listOfNotNull(above, below, left, right).all { otherPoint ->
+    val lowPoints = points.filter { point ->
+        point.getSurrounding().all { otherPoint ->
             otherPoint.height > point.height
         }
-        if (isLowPoint) lowPoints += point
     }
     println(lowPoints.sumOf { it.height + 1 })
     return lowPoints
@@ -40,32 +40,31 @@ fun main() {
 }
 
 fun part2(lowPoints: List<Point>) {
-    // every low point has a basin
-    // (but i suspect there might be duplicates)
-    val (a, b, c) = lowPoints.map { findBasinForLowPoint(it, list) }.distinct().sortedByDescending { it.size }.take(3)
+    val result = lowPoints
+        .asSequence()
+        .map { findBasinForLowPoint(it) }
+        .distinct()
+        .sortedByDescending { it.size }
+        .take(3)
         .map { it.size }
-    println(a * b * c)
+        .reduce { a, b -> a * b }
+    println(result)
 }
 
-fun findBasinForLowPoint(lowPoint: Point, map: List<Point>): Set<Point> {
+fun findBasinForLowPoint(lowPoint: Point): Set<Point> {
     var currentBasin = setOf(lowPoint)
-    var newBasin: Set<Point> = currentBasin
+    var newBasin: Set<Point>
     while (true) {
-        newBasin = tryExpandBasin(currentBasin, map)
+        newBasin = tryExpandBasin(currentBasin)
         if (newBasin.size == currentBasin.size) return newBasin
         currentBasin = newBasin
     }
 }
 
-fun tryExpandBasin(currentBasin: Set<Point>, map: List<Point>): Set<Point> {
+fun tryExpandBasin(currentBasin: Set<Point>): Set<Point> {
     val newBasin = currentBasin.toMutableSet()
     for (point in currentBasin) {
-        val above = list.getAt(point.x, point.y - 1)
-        val below = list.getAt(point.x, point.y + 1)
-        val left = list.getAt(point.x - 1, point.y)
-        val right = list.getAt(point.x + 1, point.y)
-        val newAdditions = listOfNotNull(above, below, left, right).filter { it.height != 9 }
-        newBasin.addAll(newAdditions)
+        newBasin.addAll(point.getSurrounding().filter { it.height != 9 })
     }
     return newBasin
 }
