@@ -11,10 +11,6 @@ val height = input.size
 data class Octopus(var energy: Int)
 data class Vec2(val x: Int, val y: Int)
 
-operator fun Map<Vec2, Octopus>.get(x: Int, y: Int): Octopus? {
-    return this[Vec2(x, y)]
-}
-
 val points = buildMap<Vec2, Octopus> {
     for ((y, line) in input.withIndex()) {
         for ((x, num) in line.withIndex()) {
@@ -52,11 +48,14 @@ fun step(octopusMap: Map<Vec2, Octopus>): Int {
     }
     while (octopusMap.any { it.value.energy >= 10 }) {
         val toZap = octopusMap.filter { it.value.energy >= 10 }
+        flashes += toZap.size
         for ((coord, octopus) in toZap) {
             octopus.energy = 0
-            flashes++
-            val surroundingOctos = coord.surrounding.mapNotNull { octopusMap[it] }
-            surroundingOctos.filter { it.energy != 0 }.forEach { it.energy++ }
+            coord
+                .surrounding
+                .mapNotNull { surroundingCoordinate -> octopusMap[surroundingCoordinate] }
+                .filter { surroundingOctopus -> surroundingOctopus.energy != 0 }
+                .forEach { nonFlashedOctopus -> nonFlashedOctopus.energy++ }
         }
     }
     return flashes
@@ -75,7 +74,7 @@ val Vec2.surrounding: List<Vec2>
 fun Map<Vec2, Octopus>.debugPrint() {
     for (y in 0 until height) {
         for (x in 0 until width) {
-            print(this[x, y]?.energy ?: error("$x $y"))
+            print(this[Vec2(x, y)]?.energy ?: error("$x $y"))
         }
         println()
     }
