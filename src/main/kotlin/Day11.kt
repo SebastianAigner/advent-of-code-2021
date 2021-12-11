@@ -30,7 +30,9 @@ fun main() {
         flashes += step(points)
         repetitions++
     }
-    println(flashes)
+    val part1 = flashes
+    println(part1)
+    check(part1 == 1603)
     while (true) {
         val thisFlash = step(points)
         repetitions++
@@ -38,39 +40,37 @@ fun main() {
             break
         }
     }
-    println(repetitions)
+    val part2 = repetitions
+    check(part2 == 222)
+    println(part2)
 }
 
-fun step(map: Map<Vec2, Octopus>): Int {
+fun step(octopusMap: Map<Vec2, Octopus>): Int {
     var flashes = 0
-    for ((_, octopus) in map) {
+    for (octopus in octopusMap.values) {
         octopus.energy++
     }
-    val flashed = mutableListOf<Vec2>()
-    while (map.any { it.value.energy >= 10 }) {
-        val toZap = map.filter { it.value.energy >= 10 }
+    while (octopusMap.any { it.value.energy >= 10 }) {
+        val toZap = octopusMap.filter { it.value.energy >= 10 }
         for ((coord, octopus) in toZap) {
-            flashed += coord
             octopus.energy = 0
             flashes++
-            val surrounding =
-                buildList {
-                    for (x in -1..1) {
-                        for (y in -1..1) {
-                            if (x == 0 && y == 0) continue
-                            add(map[coord.x + x, coord.y + y])
-                        }
-                    }
-                }.filterNotNull()
-            surrounding.map { it.energy++ }
-            break
+            val surroundingOctos = coord.surrounding.mapNotNull { octopusMap[it] }
+            surroundingOctos.filter { it.energy != 0 }.forEach { it.energy++ }
         }
-    }
-    for (f in flashed) {
-        map[f.x, f.y]?.energy = 0
     }
     return flashes
 }
+
+val Vec2.surrounding: List<Vec2>
+    get() = buildList {
+        for (x in -1..1) {
+            for (y in -1..1) {
+                if (x == 0 && y == 0) continue
+                add(Vec2(this@surrounding.x + x, this@surrounding.y + y))
+            }
+        }
+    }
 
 fun Map<Vec2, Octopus>.debugPrint() {
     for (y in 0 until height) {
