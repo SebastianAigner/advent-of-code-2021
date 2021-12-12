@@ -6,24 +6,13 @@ import java.io.File
 
 val input = File("inputs/day12.txt").readLines().map { val (from, to) = it.split("-"); from to to }
 val nodeNames = input.flatMap { it.toList() }.distinct().sorted()
-val nodeNum = nodeNames.count()
-
-fun String.matrixIndex(): Int {
-    return nodeNames.indexOf(this)
-}
-
-val matrix = MutableList(nodeNum) {
-    MutableList(nodeNum) {
-        false
-    }
-}
+val transitions = mutableMapOf<String, MutableList<String>>()
 
 fun main() {
-    for (pair in input) {
-        matrix[pair.first.matrixIndex()][pair.second.matrixIndex()] = true
-        matrix[pair.second.matrixIndex()][pair.first.matrixIndex()] = true
+    for ((from, to) in input) {
+        transitions[from] = transitions.getOrDefault(from, mutableListOf()).apply { add(to) }
+        transitions[to] = transitions.getOrDefault(to, mutableListOf()).apply { add(from) }
     }
-    matrix.debug()
 
     val targetSet = mutableSetOf<List<String>>()
 
@@ -42,14 +31,13 @@ fun main() {
     check(part2 == 147784)
 }
 
-
 fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetCollection: MutableSet<List<String>>) {
     val last = pathSoFar.last()
     if (last == "end") {
         targetCollection += pathSoFar
         return
     }
-    val adjacents = matrix.adjacent(last)
+    val adjacents = transitions.getValue(last)
     val candidates = adjacents.filter {
         it.isLargeCave || it !in (pathSoFar + "start") || (it == withBigCave && pathSoFar.count { it == withBigCave } <= 1)
     }
@@ -59,15 +47,3 @@ fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetCollection
 }
 
 val String.isLargeCave get() = first().isUpperCase()
-
-fun List<List<Boolean>>.adjacent(name: String): List<String> {
-    val booles = this[name.matrixIndex()]
-    return booles.mapIndexedNotNull { index, b -> if (b) nodeNames[index] else null }
-}
-
-fun List<List<Boolean>>.debug() {
-    println("      " + nodeNames.joinToString())
-    for ((idx, line) in this.withIndex()) {
-        println(nodeNames[idx].padStart(5) + " " + line.joinToString() { if (it) "1" else "0" })
-    }
-}
