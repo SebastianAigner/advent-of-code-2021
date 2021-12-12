@@ -34,7 +34,7 @@ fun main() {
 
     targetSet.clear()
 
-    for (smallCave in nodeNames.filter { it.first().isLowerCase() && it !in listOf("start", "end") }) {
+    for (smallCave in nodeNames.filter { !it.isLargeCave && it !in listOf("start", "end") }) {
         findAllPaths(listOf("start"), withBigCave = smallCave, targetSet)
     }
     val part2 = targetSet.count()
@@ -51,7 +51,7 @@ fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetCollection
     }
     val adjacents = matrix.adjacent(last)
     val candidates = adjacents.filter {
-        it.isLargeCave || it !in pathSoFar + "start" || (it == withBigCave && pathSoFar.count { it == withBigCave } <= 1)
+        it.isLargeCave || it !in (pathSoFar + "start") || (it == withBigCave && pathSoFar.count { it == withBigCave } <= 1)
     }
     for (candidate in candidates) {
         findAllPaths(pathSoFar + candidate, withBigCave, targetCollection)
