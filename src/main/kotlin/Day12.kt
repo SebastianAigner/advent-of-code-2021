@@ -25,51 +25,40 @@ fun main() {
     }
     matrix.debug()
 
-    findAllPaths(listOf("start"))
-    println(allPaths.count())
+    val targetSet = mutableSetOf<List<String>>()
+
+    findAllPaths(listOf("start"), withBigCave = null, targetSet)
+    val part1 = targetSet.count()
+    println(part1)
+    check(part1 == 5252)
+
+    targetSet.clear()
 
     for (smallCave in nodeNames.filter { it.first().isLowerCase() && it !in listOf("start", "end") }) {
-        println("Working with $smallCave as big")
-        findAllPaths2(listOf("start"), withBigCave = smallCave)
+        findAllPaths(listOf("start"), withBigCave = smallCave, targetSet)
     }
-    println(allPaths2.distinct().count())
+    val part2 = targetSet.count()
+    println(part2)
+    check(part2 == 147784)
 }
 
-val allPaths = mutableListOf<List<String>>()
 
-fun findAllPaths(pathSoFar: List<String>) {
+fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetCollection: MutableSet<List<String>>) {
     val last = pathSoFar.last()
     if (last == "end") {
-        allPaths += pathSoFar
-        println(pathSoFar)
-        return
-    }
-    val adjacents = matrix.adjacent(last)
-    val candidates = adjacents.filter { it.first().isUpperCase() || it !in pathSoFar }
-    for (candidate in candidates) {
-        findAllPaths(pathSoFar + candidate)
-    }
-}
-
-val allPaths2 = mutableListOf<List<String>>()
-
-fun findAllPaths2(pathSoFar: List<String>, withBigCave: String) {
-    println(pathSoFar)
-    val last = pathSoFar.last()
-    if (last == "end") {
-        allPaths2 += pathSoFar
-        println(pathSoFar)
+        targetCollection += pathSoFar
         return
     }
     val adjacents = matrix.adjacent(last)
     val candidates = adjacents.filter {
-        it.first()
-            .isUpperCase() || it !in pathSoFar || (it == withBigCave && pathSoFar.count { it == withBigCave } <= 1)
-    }.filter { it != "start" }
+        it.isLargeCave || it !in pathSoFar + "start" || (it == withBigCave && pathSoFar.count { it == withBigCave } <= 1)
+    }
     for (candidate in candidates) {
-        findAllPaths2(pathSoFar + candidate, withBigCave)
+        findAllPaths(pathSoFar + candidate, withBigCave, targetCollection)
     }
 }
+
+val String.isLargeCave get() = first().isUpperCase()
 
 fun List<List<Boolean>>.adjacent(name: String): List<String> {
     val booles = this[name.matrixIndex()]
