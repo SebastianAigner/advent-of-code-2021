@@ -31,10 +31,10 @@ fun main() {
     check(part2 == 147784)
 }
 
-fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetCollection: MutableSet<List<String>>) {
+fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetSet: MutableSet<List<String>>) {
     val last = pathSoFar.last()
     if (last == "end") {
-        targetCollection += pathSoFar
+        targetSet += pathSoFar
         return
     }
     val adjacents = transitions.getValue(last)
@@ -42,7 +42,7 @@ fun findAllPaths(pathSoFar: List<String>, withBigCave: String?, targetCollection
         it.isLargeCave || it !in (pathSoFar + "start") || (it == withBigCave && pathSoFar.count { it == withBigCave } <= 1)
     }
     for (candidate in candidates) {
-        findAllPaths(pathSoFar + candidate, withBigCave, targetCollection)
+        findAllPaths(pathSoFar + candidate, withBigCave, targetSet)
     }
 }
 
