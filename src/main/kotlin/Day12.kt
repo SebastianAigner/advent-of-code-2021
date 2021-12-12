@@ -6,14 +6,14 @@ import java.io.File
 
 val input = File("inputs/day12.txt").readLines().map { val (from, to) = it.split("-"); from to to }
 val nodeNames = input.flatMap { it.toList() }.distinct().sorted()
-val transitions = mutableMapOf<String, MutableList<String>>()
+val transitions: Map<String, List<String>> = buildMap<String, MutableList<String>> {
+    for ((from, to) in input) {
+        this.getOrPut(from) { mutableListOf() }.add(to)
+        this.getOrPut(to) { mutableListOf() }.add(from)
+    }
+}
 
 fun main() {
-    for ((from, to) in input) {
-        transitions[from] = transitions.getOrDefault(from, mutableListOf()).apply { add(to) }
-        transitions[to] = transitions.getOrDefault(to, mutableListOf()).apply { add(from) }
-    }
-
     val targetSet = mutableSetOf<List<String>>()
 
     findAllPaths(listOf("start"), withBigCave = null, targetSet)
