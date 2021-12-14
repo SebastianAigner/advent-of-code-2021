@@ -23,7 +23,7 @@ data class DoubleRule(val from: String, val tos: List<String>) {
 
 data class PolymerWindow(val identifier: String, val count: Long)
 
-fun countPolymerWindows(list: List<PolymerWindow>): Map<Char, Long> {
+fun countPolymerElements(list: List<PolymerWindow>): Map<Char, Long> {
     val firstLetter = startPoly[0]
     val map = mutableMapOf<Char, Long>()
     for (polymerWindow in list) {
@@ -40,8 +40,8 @@ fun simulatePolymer(gens: Int) {
     repeat(gens) {
         currWindow = performInsertion(currWindow)
     }
-    val mapp = countPolymerWindows(currWindow)
-    println(mapp.maxOf { it.value } - mapp.minOf { it.value })
+    val polyElemCount = countPolymerElements(currWindow)
+    println(polyElemCount.maxOf { it.value } - polyElemCount.minOf { it.value })
 }
 
 fun main() {
