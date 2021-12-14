@@ -19,14 +19,9 @@ data class DoubleRule(val from: String, val tos: List<String>) {
             return DoubleRule(r.from, listOf("${r.from[0]}${r.to}", "${r.to}${r.from[1]}"))
         }
     }
-
-    override fun toString(): String {
-        return "$from=>$tos"
-    }
 }
 
 data class PolymerWindow(val identifier: String, val count: Long)
-
 
 fun countPolymerWindows(list: List<PolymerWindow>): Map<Char, Long> {
     val firstLetter = startPoly[0]
@@ -39,20 +34,19 @@ fun countPolymerWindows(list: List<PolymerWindow>): Map<Char, Long> {
     return map.toMap()
 }
 
-
-fun main() {
-    println(doubleRules.count())
-    println(startPoly.length)
-
+fun simulatePolymer(gens: Int) {
     val startWindows = startPoly.windowed(2).map { PolymerWindow(it, 1) }
-    println(countPolymerWindows(startWindows))
     var currWindow = startWindows
-    repeat(40) {
+    repeat(gens) {
         currWindow = performInsertion(currWindow)
     }
     val mapp = countPolymerWindows(currWindow)
     println(mapp.maxOf { it.value } - mapp.minOf { it.value })
-    println(countPolymerWindows(currWindow))
+}
+
+fun main() {
+    simulatePolymer(10)
+    simulatePolymer(40)
 }
 
 fun performInsertion(windows: List<PolymerWindow>): List<PolymerWindow> {
@@ -66,25 +60,15 @@ fun performInsertion(windows: List<PolymerWindow>): List<PolymerWindow> {
     val condensedPolyWindows = uniqueIdentifiers.map { uid ->
         PolymerWindow(uid, newPolyWindows.filter { it.identifier == uid }.sumOf { it.count })
     }
-//    println(condensedPolyWindows)
     return condensedPolyWindows
 }
 
-fun part1() {
-    var poly = startPoly
-    repeat(10) {
-        poly = poly.insert(rules)
-    }
-    val common = poly.groupingBy { it }.eachCount()
-    println(common.maxOf { it.value } - common.minOf { it.value })
-}
-
-fun String.insert(rules: List<Rule>): String {
-    val x = this.windowed(2).map { pair ->
-        val insertLetter = rules.find { it.from == pair }
-        if (insertLetter != null) {
-            (pair[0] + insertLetter.to)
-        } else pair[0].toString()
-    } + this[lastIndex]
-    return x.joinToString("")
-}
+//fun String.insert(rules: List<Rule>): String {
+//    val x = this.windowed(2).map { pair ->
+//        val insertLetter = rules.find { it.from == pair }
+//        if (insertLetter != null) {
+//            (pair[0] + insertLetter.to)
+//        } else pair[0].toString()
+//    } + this[lastIndex]
+//    return x.joinToString("")
+//}
