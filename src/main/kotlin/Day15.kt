@@ -6,11 +6,34 @@ import java.io.File
 import kotlin.math.abs
 
 val input = File("inputs/day15.txt").readLines()
+val width = input[0].length
+val height = input.size
+
+fun getValFor(x: Int, y: Int): Int {
+    val rX = x % width
+    val rY = y % height
+    val charAt = input[rY][rX].digitToInt()
+    val xBlock = (x / width)
+    val yBlock = (y / height)
+    if (xBlock == 0 && yBlock == 0) return charAt
+    val prevVal = when {
+        xBlock > 0 -> getValFor(x - width, y)
+        yBlock > 0 -> getValFor(x, y - height)
+        else -> error("broken")
+    }
+    val newVal = prevVal + 1
+    val realNewVal = if (newVal == 10) 1 else newVal
+    return realNewVal
+}
+
+fun getNodeFor(x: Int, y: Int): Node {
+    return Node(x, y, getValFor(x, y))
+}
 
 val nodes = buildList<Node> {
-    for ((y, line) in input.withIndex()) {
-        for ((x, char) in line.withIndex()) {
-            add(Node(x, y, char.digitToInt()))
+    repeat(5 * height) { y ->
+        repeat(5 * width) { x ->
+            add(getNodeFor(x, y))
         }
     }
 }
@@ -18,7 +41,6 @@ val nodes = buildList<Node> {
 data class Node(val x: Int, val y: Int, val cost: Int)
 
 fun main() {
-    println(nodes)
     val startNode = nodes[0]
     val endNode = nodes.last()
     println(startNode)
@@ -26,6 +48,9 @@ fun main() {
     val dijk = dijkstra(nodes, startNode, endNode)
     println(dijk.sumOf { it.cost } - nodes[0].cost)
 }
+
+// This impl is slow :) It might be worth refactoring to a solution like the one from Roman: https://github.com/elizarov/AdventOfCode2021/blob/main/src/Day15_2_fast.kt
+// But it _did_ get the right solution in the end.
 
 fun dijkstra(graph: List<Node>, source: Node, target: Node): ArrayDeque<Node> {
     val q = mutableSetOf<Node>()
