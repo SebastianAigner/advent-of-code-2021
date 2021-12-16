@@ -27,7 +27,7 @@ data class Packet(val header: PacketHeader, val body: PacketBody) {
     }
 }
 
-sealed class PacketBody() {
+sealed class PacketBody {
     abstract fun eval(): Long
     abstract fun versionSum(): Int
 }
@@ -100,21 +100,21 @@ class MaximumPacketBody(packets: List<Packet>) : OperatorPacketBody(packets) {
 class GTPacketBody(packets: List<Packet>) : OperatorPacketBody(packets) {
     override fun eval(): Long {
         val (first, second) = packets
-        if (first.body.eval() > second.body.eval()) return 1 else return 0
+        return if (first.body.eval() > second.body.eval()) 1 else 0
     }
 }
 
 class LTPacketBody(packets: List<Packet>) : OperatorPacketBody(packets) {
     override fun eval(): Long {
         val (first, second) = packets
-        if (first.body.eval() < second.body.eval()) return 1 else return 0
+        return if (first.body.eval() < second.body.eval()) 1 else 0
     }
 }
 
 class EQPacketBody(packets: List<Packet>) : OperatorPacketBody(packets) {
     override fun eval(): Long {
         val (first, second) = packets
-        if (first.body.eval() == second.body.eval()) return 1 else return 0
+        return if (first.body.eval() == second.body.eval()) 1 else 0
     }
 }
 
@@ -133,9 +133,6 @@ fun main() {
 
 fun parsePacket(sb: StringBuilder): Packet {
     // peek at header to determine type
-    println(sb.toString())
-    val typeStr = sb.drop(3).take(3).toString()
-    println(typeStr)
     val type = sb.drop(3).take(3).toString().toInt(2)
     val parsedPacket = when (type) {
         4 -> parseLiteralPacket(sb)
@@ -149,27 +146,26 @@ fun parsePacket(sb: StringBuilder): Packet {
 fun parseLiteralPacket(sb: StringBuilder): Packet {
     val version = sb.takeDeleting(3)
     val type = sb.takeDeleting(3)
-    val oneGroups = mutableListOf<String>()
+    val fiveBitGroups = mutableListOf<String>()
     println(sb)
     while (true) {
         if (!sb.startsWith("1")) break
         val oneGroup = sb.takeDeleting(5)
-        oneGroups.add(oneGroup)
+        fiveBitGroups.add(oneGroup)
     }
     check(sb.startsWith("0"))
     val zeroGroup = sb.takeDeleting(5)
-    oneGroups.add(zeroGroup)
-    val nunum = oneGroups.map { it.drop(1) }.joinToString("").toLong(2)
-    println(nunum)
+    fiveBitGroups.add(zeroGroup)
+    val number = fiveBitGroups.map { it.drop(1) }.joinToString("").toLong(2)
     //sb.deletePrefix(3) // remove trailing zeroes
-    return Packet(PacketHeader(version.toInt(2), type.toInt(2)), LiteralPacketBody(nunum))
+    return Packet(PacketHeader(version.toInt(2), type.toInt(2)), LiteralPacketBody(number))
 }
 
 fun parseOperatorPacket(sb: StringBuilder): Packet {
-    val version = sb.takeDeleting(3).toString()
+    val version = sb.takeDeleting(3)
 
-    val type = sb.takeDeleting(3).toString()
-    val lengthType = sb.takeDeleting(1).toString().toInt(2)
+    val type = sb.takeDeleting(3)
+    val lengthType = sb.takeDeleting(1).toInt(2)
     val subpackets = mutableListOf<Packet>()
     if (lengthType == 0) {
         val bitsInSubpackets = sb.takeDeleting(15).toInt(2)
