@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalStdlibApi::class)
+
 package day17
 
 import java.io.File
@@ -29,21 +31,81 @@ data class Rectangle(val startX: Int, val endX: Int, val startY: Int, val endY: 
     fun contains(p: Probe) = contains(p.x, p.y)
 }
 
+data class SimResult(val velX: Int, val velY: Int, val highpoint: Int)
+
 fun main() {
-    println(xRange)
-    println(yRange)
-    val highpoints = mutableListOf<Int>()
-    for (x in 0..10000) {
-        for (y in 0..10000) {
-            computeHighPoint(x, y)?.let { highpoints.add(it) }
+    val xes = computeXPower()
+    val yes = computeYPower()
+    println(xes)
+    println(yes)
+    val combis = buildList {
+        for (x in xes) {
+            for (y in yes) {
+                if (computeHighPoint(x, y) != null) {
+                    add(x to y)
+                }
+            }
         }
     }
-    println(highpoints.maxOf { it })
+    println(combis.size)
+
+    val results = mutableListOf<SimResult>()
+    for (x in xes) {
+        for (y in yes) {
+            val hp = computeHighPoint(x, y)
+            if (hp != null) {
+                results += SimResult(x, y, hp)
+            }
+        }
+    }
+    println(results.maxByOrNull { it.highpoint })
+}
+
+fun computeYPower(): Set<Int> {
+    val (lowerBound, upperBound) = yRange
+    val yPowers = mutableSetOf<Int>()
+    power@ for (startVel in -10000..10000) {
+        var y = 0
+        var yVel = startVel
+        do {
+            y += yVel
+            yVel--
+            if (y in lowerBound..upperBound) {
+                // target hit
+                yPowers += startVel
+                continue@power
+            }
+        } while (y >= lowerBound)
+    }
+
+    return yPowers
+}
+
+
+fun computeXPower(): Set<Int> {
+    val (lowerBound, upperBound) = xRange
+    val xPowers = mutableSetOf<Int>()
+    power@ for (startVel in 0..upperBound) {
+        var x = 0
+        var xVel = startVel
+        do {
+            x += xVel
+            if (xVel > 0) xVel--
+            if (xVel < 0) xVel++
+            if (x in lowerBound..upperBound) {
+                // target hit
+                xPowers += startVel
+                continue@power
+            }
+        } while (x <= upperBound && xVel != 0)
+    }
+
+    return xPowers
 }
 
 fun computeHighPoint(velX: Int, velY: Int): Int? {
     val target = Rectangle(xRange.first, xRange.second, yRange.first, yRange.second)
-    val probe = Probe(0, 0, 6, 9)
+    val probe = Probe(0, 0, velX, velY)
     val probeSteps = mutableListOf<Probe>()
     while (!probe.hasPassed(target) && !target.contains(probe.x, probe.y)) {
         probe.step()
