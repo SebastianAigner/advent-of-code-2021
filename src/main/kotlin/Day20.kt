@@ -40,17 +40,17 @@ data class InputImage(val pixels: Map<Vec2, Pixel>) {
         }
     }
 
-    fun enhance(): InputImage {
+    fun enhance(isBackgroundLit: Boolean): InputImage {
         val newImage = pixels.toMutableMap()
         val (minX, minY, maxX, maxY) = getBoundingRect()
-        for (pixelY in minY - 9..maxY + 9) {
-            for (pixelX in minX - 9..maxX + 9) {
+        for (pixelY in minY - 1..maxY + 1) {
+            for (pixelX in minX - 1..maxX + 1) {
                 val pixel = Vec2(pixelX, pixelY)
                 val binNum = StringBuilder()
                 val surrounding = pixel.get3by3()
                 for (kernelPixel in surrounding) {
                     val sPix = pixels[kernelPixel]
-                    if (sPix != null && sPix.lit) {
+                    if (sPix != null && sPix.lit || sPix == null && isBackgroundLit) {
                         binNum.append("1")
                     } else {
                         binNum.append("0")
@@ -78,12 +78,13 @@ fun main() {
         }
     }
     var curr = InputImage(m)
-    repeat(2) {
-        curr = curr.enhance()
+    repeat(50) {
+        curr = curr.enhance(it % 2 == 1)
 //        curr.debugPrint()
     }
     curr.debugPrint()
-    println(curr.countLit()) // not 10091. not 5354. not 4960.
+    println(curr.countLit()) // not 10091. not 5354. not 4960. not 5464.
+    // should be 5326
 }
 
 fun InputImage.debugPrint() {
