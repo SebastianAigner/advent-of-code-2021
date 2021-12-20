@@ -58,11 +58,10 @@ data class InputImage(val pixels: Map<Vec2, Pixel>) {
                 }
                 val index = binNum.toString().toInt(2)
                 val newPixel = enhancement[index]
-//                newImage.remove(pixel)
                 if (newPixel == '#') {
-                    newImage.put(pixel, Pixel(pixel, true))
+                    newImage[pixel] = Pixel(pixel, true)
                 } else {
-                    newImage.put(pixel, Pixel(pixel, false))
+                    newImage[pixel] = Pixel(pixel, false)
                 }
             }
         }
@@ -80,18 +79,13 @@ fun main() {
     var curr = InputImage(m)
     repeat(50) {
         curr = curr.enhance(it % 2 == 1)
-//        curr.debugPrint()
     }
     curr.debugPrint()
-    println(curr.countLit()) // not 10091. not 5354. not 4960. not 5464.
-    // should be 5326
+    println(curr.countLit())
 }
 
 fun InputImage.debugPrint() {
-    val minX = this.pixels.keys.minOf { it.x }
-    val minY = this.pixels.keys.minOf { it.y }
-    val maxX = this.pixels.keys.maxOf { it.x }
-    val maxY = this.pixels.keys.maxOf { it.y }
+    val (minX, minY, maxX, maxY) = getBoundingRect()
     for (y in minY..maxY) {
         for (x in minX..maxX) {
             val poxel = pixels[Vec2(x, y)]
