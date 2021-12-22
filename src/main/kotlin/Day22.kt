@@ -39,7 +39,7 @@ fun main() {
         })
     }
 
-    // after 2 instructions: 46
+
 }
 
 data class ReactorState(val cuboid: Cuboid, val instruction: Instruction) {
@@ -74,11 +74,11 @@ data class Cuboid(val xRange: IntRange, val yRange: IntRange, val zRange: IntRan
         return xRange.overlaps(other.xRange) || yRange.overlaps(other.yRange) || zRange.overlaps(other.zRange)
     }
 
-    fun isSubcuboidOf(other: Cuboid): Boolean {
-        return xRange.first >= other.xRange.first && xRange.last <= other.xRange.last
-                && yRange.first >= other.yRange.first && yRange.last <= other.yRange.last
-                && zRange.first >= other.zRange.first && zRange.last <= other.zRange.last
-    }
+//    fun isSubcuboidOf(other: Cuboid): Boolean {
+//        return xRange.first >= other.xRange.first && xRange.last <= other.xRange.last
+//                && yRange.first >= other.yRange.first && yRange.last <= other.yRange.last
+//                && zRange.first >= other.zRange.first && zRange.last <= other.zRange.last
+//    }
 }
 
 class Cubismo() {
@@ -100,8 +100,7 @@ class Cubismo() {
             cuboids -= outerCuboid
 
             val newboids = unchangedNewCuboids.map { ReactorState(it, outerCuboid.instruction) }
-                .filter { it.cuboid.volume() > 0 && !it.cuboid.isSubcuboidOf(innerCuboid) } + ReactorState(innerCuboid,
-                instruction)
+                .filter { it.cuboid.volume() > 0 } + ReactorState(innerCuboid, instruction)
             println("$outerCuboid+$innerCuboid turned into $newboids")
             cuboids += newboids
         }
@@ -115,21 +114,46 @@ class Cubismo() {
         // extends fully in y and z
         // extends from outerCuboid.xStart to innerCuboid.xStart (non-incl)
         val leftSandwich =
-            Cuboid(outerCuboid.xRange.first until innerCuboid.xRange.first, outerCuboid.yRange, outerCuboid.zRange)
+            Cuboid(
+                outerCuboid.xRange.first until innerCuboid.xRange.first,
+                outerCuboid.yRange,
+                outerCuboid.zRange
+            )
 
         val rightSandwich =
-            Cuboid(innerCuboid.xRange.first + 1..outerCuboid.xRange.last, outerCuboid.yRange, outerCuboid.zRange)
+            Cuboid(
+                innerCuboid.xRange.last + 1..outerCuboid.xRange.last,
+                outerCuboid.yRange,
+                outerCuboid.zRange
+            )
 
         val topPickle =
-            Cuboid(innerCuboid.xRange, outerCuboid.yRange, innerCuboid.zRange.last + 1..outerCuboid.zRange.last)
+            Cuboid(
+                innerCuboid.xRange,
+                outerCuboid.yRange,
+                innerCuboid.zRange.last + 1..outerCuboid.zRange.last
+            )
 
         val bottomPickle =
-            Cuboid(innerCuboid.xRange, outerCuboid.yRange, outerCuboid.zRange.first until innerCuboid.zRange.first + 1)
+            Cuboid(
+                innerCuboid.xRange,
+                outerCuboid.yRange,
+                outerCuboid.zRange.first until innerCuboid.zRange.first
+            )
 
         val frontFry =
-            Cuboid(innerCuboid.xRange, outerCuboid.yRange.first until innerCuboid.yRange.first, innerCuboid.zRange)
+            Cuboid(
+                innerCuboid.xRange,
+                outerCuboid.yRange.first until innerCuboid.yRange.first,
+                innerCuboid.zRange
+            )
         val backFry =
-            Cuboid(innerCuboid.xRange, innerCuboid.yRange.last + 1..outerCuboid.yRange.last, innerCuboid.zRange)
+            Cuboid(
+                innerCuboid.xRange,
+                innerCuboid.yRange.last + 1..outerCuboid.yRange.last,
+                innerCuboid.zRange
+            )
+
         val dissect = listOf(leftSandwich, rightSandwich, topPickle, bottomPickle, frontFry, backFry)
         println("Dissected to $dissect")
         return dissect
